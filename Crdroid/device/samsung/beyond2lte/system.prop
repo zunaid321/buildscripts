@@ -1,0 +1,8 @@
+### TWEAKS
+debug.sf.enable_hwc_vds=1
+debug.sf.hw=1
+debug.egl.hw=1
+debug.egl.profiler=1
+com.qc.hardware=true
+debug.composition.type=skiavk
+debug.hwui.renderer=skiagl
