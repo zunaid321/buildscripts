@@ -19,8 +19,15 @@ cp_p()
 }
 
 ## Variables
-ROM_DIR=""$HOME"/android/evox"
-BUILD_DIR=""$HOME"/android/evox/out/target/product/beyond2lte/"
+ROM="evox"
+ROM_FOLDER="EvolutionX"
+ROM_DIR=""$HOME"/android/"$ROM""
+BUILD_DIR=""$HOME"/android/"$ROM"/out/target/product/beyond2lte/"
+
+## Removing Old Builds
+
+cd "$BUILD_DIR"
+rm -rf $(ls -t EvolutionX_*_beyond2lte-10.0-*-UNOFFICIAL.*)
 
 ## Environment
 set -e
@@ -29,22 +36,38 @@ export WITH_MAGISK=true
 source "$ROM_DIR/build/envsetup.sh"
 
 ## Sync
-echo "Syncing latest changes for EvoX"
+echo "Syncing latest changes for "$ROM_FOLDER""
 
-repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags -j60
+repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
 ## Build
-echo "Starting EvoX For Beyond2lte(S10+)"
+echo "Starting "$ROM_FOLDER" For Beyond2lte(S10+)"
 		
 lunch aosp_beyond2lte-eng
-mka bacon -j120
+time mka bacon -j120
 
 ## Upload
 cd "$BUILD_DIR"
-latestbuild=$(ls -t EvolutionX_4.3_beyond2lte-10.0-*-UNOFFICIAL.zip | head -n1)
-echo "${latestbuild}"
-cp_p ${latestbuild} /home/zunaidaminenan/S10PlusBuilds/EvolutionX/${latest}
-rsync -avz --info=progress2 /home/zunaidaminenan/S10PlusBuilds/EvolutionX/${latest} zunaid321@frs.sourceforge.net:/home/frs/project/zunaid-s10plus-builds/S10PlusBuilds/EvolutionX/${latest}
+
+#ROM BUILD
+latestbuild=$(ls -t EvolutionX_*_beyond2lte-10.0-*-UNOFFICIAL.zip | head -n1)
+
+#ROM CHANGELOG
+latestchangelog=$(ls -t EvolutionX_*_beyond2lte-10.0-*-UNOFFICIAL.zip.txt | head -n1)
+
+echo "The latest build is "${latestbuild}""
+
+echo "Copying Changelog"
+cp_p ${latestchangelog} /home/zunaidaminenan/S10PlusBuilds/"$ROM_FOLDER"/${latestchangelog}
+
+echo "Copying ROM"
+cp_p ${latestbuild} /home/zunaidaminenan/S10PlusBuilds/"$ROM_FOLDER"/${latest}
+
+echo "Uploading Changelog"
+rsync -avz --info=progress2 /home/zunaidaminenan/S10PlusBuilds/"$ROM_FOLDER"/${latestchangelog} zunaid321@frs.sourceforge.net:/home/frs/project/zunaid-s10plus-builds/S10PlusBuilds/"$ROM_FOLDER"/${latestchangelog}
+
+echo "Uploading ROM"
+rsync -avz --info=progress2 /home/zunaidaminenan/S10PlusBuilds/"$ROM_FOLDER"/${latest} zunaid321@frs.sourceforge.net:/home/frs/project/zunaid-s10plus-builds/S10PlusBuilds/"$ROM_FOLDER"/${latest}
 
 
-echo "The build has been successfully uploaded!"
+echo "The "$ROM_FOLDER" build has been successfully uploaded!"
